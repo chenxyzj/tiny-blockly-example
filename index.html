@@ -30,8 +30,18 @@
             // Add custom validation.
             this.getField('HEXINPUT').setValidator(function(newValue) {
                 // Force an hex number.
-                // const theNum = 
-                return newValue.replace(/[^A-Fa-f0-9]/g,'');
+                let theStr = newValue;
+                theStr=theStr.replace(/[^A-Fa-f0-9]/g,'');
+                theStr=theStr.slice(0,4);
+                if(theStr.length!==4) {
+                    if(theStr.length===3) theStr = '0'+theStr;
+                    else if(theStr.length===2) theStr = '00'+theStr;
+                    else if(theStr.length===1) theStr = '000'+theStr;
+                    else theStr = '0000';
+                }
+                newValue = theStr;
+                return newValue;
+                // return newValue.replace(/[^A-Fa-f0-9]/g,'');
                 // return newValue.replace(/^[^0-9a-fA-F]+$/g,'');
                 // return newValue.replace(/^0xX+$/g, '');
                 // return newValue.replace(/\a/g, '');
