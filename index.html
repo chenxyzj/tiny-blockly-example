@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    Emoji: <span id="out"></span>
+    <div id="ide" style="height:200px;width:400px;"></div>
+
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <script>
+        // This extension sets the block's tooltip to be a function which displays
+        // the parent block's tooltip (if it exists).
+        Blockly.Extensions.register(
+            'parent_tooltip_extension',
+            function() { // this refers to the block that the extension is being run on
+                var thisBlock = this;
+                this.setTooltip(function() {
+                    var parent = thisBlock.getParent();
+                    return (parent && parent.getInputsInline() && parent.tooltip) ||
+                        "emoji";
+                });
+        });
+
+        Blockly.Extensions.register('hexdecimal_validation', function() {
+            // Add custom validation.
+            this.getField('HEXINPUT').setValidator(function(newValue) {
+                // Force an hex number.
+                // const theNum = 
+                return newValue.replace(/[^A-Fa-f0-9]/g,'');
+                // return newValue.replace(/^[^0-9a-fA-F]+$/g,'');
+                // return newValue.replace(/^0xX+$/g, '');
+                // return newValue.replace(/\a/g, '');
+            });
+        });
+
+        const emojiLang = new Blockly.Generator('EmojiLang');
+
+        emojiLang['print'] = function (block) {
+            const code = block.getFieldValue('EMOJI_CODE');
+            if (!code) return 'waiting…';
+            if (code == ':-)') return '🙂';
+            if (code == ':-(') return '🙁';
+            if (code == ':-/') return '😕';
+            return '(unknown)';
+        };
+
+        Blockly.defineBlocksWithJsonArray([
+            {
+                type: 'print',
+                message0: 'print %1 %2',
+                args0: [
+                    { type: 'field_input', name: 'HEXINPUT', text: '0000'},
+                    { type: 'field_input', name: 'EMOJI_CODE' }
+                ],
+                extensions: ["parent_tooltip_extension",'hexdecimal_validation',]
+            }
+        ]);
+
+        const ws = Blockly.inject('ide', {
+            toolbox: {
+                kind: 'flyoutToolbox',
+                contents: [
+                    { kind: 'block', type: 'print' }
+                ]
+            }
+        });
+
+        ws.addChangeListener(function () {
+            document.getElementById('out').innerHTML =
+                emojiLang.workspaceToCode(ws);
+        });
+    </script>
+</body>
+
+</html>
